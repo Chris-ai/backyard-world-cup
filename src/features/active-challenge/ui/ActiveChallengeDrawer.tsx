@@ -10,10 +10,10 @@ import { HostQuizChallenge } from "./HostQuizChallenge";
 import "./ActiveChallengeDrawer.css";
 
 type ActiveChallengeDrawerProps = {
-  playerToken: string;
+  playerId: string;
 };
 
-export function ActiveChallengeDrawer({ playerToken }: ActiveChallengeDrawerProps) {
+export function ActiveChallengeDrawer({ playerId }: ActiveChallengeDrawerProps) {
   const [challenges, setChallenges] = useState<ActiveChallenge[]>([]);
   const [finalBet, setFinalBet] = useState<FinalBet | null | undefined>(undefined);
   const [isBetDrawerOpen, setIsBetDrawerOpen] = useState(true);
@@ -59,7 +59,7 @@ export function ActiveChallengeDrawer({ playerToken }: ActiveChallengeDrawerProp
     }
 
     let isActive = true;
-    getFinalBet(playerToken)
+    getFinalBet(playerId)
       .then((bet) => {
         if (!isActive) return;
         setFinalBet(bet);
@@ -75,7 +75,7 @@ export function ActiveChallengeDrawer({ playerToken }: ActiveChallengeDrawerProp
     return () => {
       isActive = false;
     };
-  }, [activeChallengeId, activeChallengeStatus, isGrandeFinale, playerToken]);
+  }, [activeChallengeId, activeChallengeStatus, isGrandeFinale, playerId]);
 
   if (!activeChallenge) return null;
 
@@ -119,7 +119,7 @@ export function ActiveChallengeDrawer({ playerToken }: ActiveChallengeDrawerProp
         <HallOfFameChallenge
           challengeId={activeChallenge.id}
           maxPoints={activeChallenge.maxPoints}
-          playerToken={playerToken}
+          playerId={playerId}
         />
       ) : isGrandeFinale ? (
         finalBet === undefined ? (
@@ -128,7 +128,7 @@ export function ActiveChallengeDrawer({ playerToken }: ActiveChallengeDrawerProp
           <FinalBetChallenge
             initialBet={finalBet}
             onClose={finalBet ? () => setIsBetDrawerOpen(false) : undefined}
-            playerToken={playerToken}
+            playerId={playerId}
             onSaved={(savedBet) => {
               setFinalBet(savedBet);
               setIsBetDrawerOpen(false);
@@ -139,7 +139,7 @@ export function ActiveChallengeDrawer({ playerToken }: ActiveChallengeDrawerProp
         <HostQuizChallenge
           challengeId={activeChallenge.id}
           maxPoints={activeChallenge.maxPoints}
-          playerToken={playerToken}
+          playerId={playerId}
         />
       ) : (
         <div className="challenge-drawer__content">

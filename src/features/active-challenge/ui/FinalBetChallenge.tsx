@@ -11,7 +11,7 @@ type FinalBetChallengeProps = {
   initialBet: FinalBet | null;
   onClose?: () => void;
   onSaved: (bet: FinalBet) => void;
-  playerToken: string;
+  playerId: string;
 };
 
 function formatRemaining(milliseconds: number) {
@@ -22,7 +22,7 @@ function formatRemaining(milliseconds: number) {
   return `${days > 0 ? `${days}d ` : ""}${hours}h ${String(minutes).padStart(2, "0")}m`;
 }
 
-export function FinalBetChallenge({ initialBet, onClose, onSaved, playerToken }: FinalBetChallengeProps) {
+export function FinalBetChallenge({ initialBet, onClose, onSaved, playerId }: FinalBetChallengeProps) {
   const [scoreA, setScoreA] = useState(initialBet ? String(initialBet.predictedScoreA) : "");
   const [scoreB, setScoreB] = useState(initialBet ? String(initialBet.predictedScoreB) : "");
   const [winner, setWinner] = useState<"a" | "b" | null>(initialBet?.predictedWinner ?? null);
@@ -33,7 +33,7 @@ export function FinalBetChallenge({ initialBet, onClose, onSaved, playerToken }:
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    getPlayerTotalPoints(playerToken)
+    getPlayerTotalPoints(playerId)
       .then(setTotalPoints)
       .catch(() => setError("Nie udało się pobrać Twoich punktów."));
     const updateClock = () => setNow(Date.now());
@@ -43,7 +43,7 @@ export function FinalBetChallenge({ initialBet, onClose, onSaved, playerToken }:
       window.clearTimeout(initialClock);
       window.clearInterval(timer);
     };
-  }, [playerToken]);
+  }, [playerId]);
 
   const maxBet = totalPoints === null ? 0 : Math.floor(totalPoints * .5);
   const isExpired = now >= BET_DEADLINE;
@@ -68,7 +68,7 @@ export function FinalBetChallenge({ initialBet, onClose, onSaved, playerToken }:
     setIsSaving(true);
     setError("");
     try {
-      const saved = await saveFinalBet(playerToken, {
+      const saved = await saveFinalBet(playerId, {
         bet: parsedBet,
         predictedScoreA: parsedScoreA,
         predictedScoreB: parsedScoreB,

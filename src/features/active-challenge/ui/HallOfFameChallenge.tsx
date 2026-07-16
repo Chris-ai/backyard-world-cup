@@ -40,10 +40,10 @@ const hallOfFameCountries: HallOfFameCountry[] = [
 type HallOfFameChallengeProps = {
   challengeId: string;
   maxPoints: number;
-  playerToken: string;
+  playerId: string;
 };
 
-export function HallOfFameChallenge({ challengeId, maxPoints, playerToken }: HallOfFameChallengeProps) {
+export function HallOfFameChallenge({ challengeId, maxPoints, playerId }: HallOfFameChallengeProps) {
   const [expandedCountry, setExpandedCountry] = useState<string | null>(null);
   const [selections, setSelections] = useState<Record<string, ChoiceRole>>({});
   const [savedScore, setSavedScore] = useState<number | null>(null);
@@ -54,7 +54,7 @@ export function HallOfFameChallenge({ challengeId, maxPoints, playerToken }: Hal
   useEffect(() => {
     let isActive = true;
 
-    getChallengeResult(challengeId, playerToken)
+    getChallengeResult(challengeId, playerId)
       .then((score) => {
         if (isActive) setSavedScore(score);
       })
@@ -68,7 +68,7 @@ export function HallOfFameChallenge({ challengeId, maxPoints, playerToken }: Hal
     return () => {
       isActive = false;
     };
-  }, [challengeId, playerToken]);
+  }, [challengeId, playerId]);
 
   if (isLoadingResult) {
     return <div className="challenge-result-loading" aria-label="Ładowanie wyniku" />;
@@ -95,7 +95,7 @@ export function HallOfFameChallenge({ challengeId, maxPoints, playerToken }: Hal
     setSubmitError("");
 
     try {
-      const score = await saveChallengeResult(challengeId, playerToken, calculateScore());
+      const score = await saveChallengeResult(challengeId, playerId, calculateScore());
       setSavedScore(score);
     } catch {
       setSubmitError("Nie udało się zapisać wyniku. Spróbuj ponownie.");

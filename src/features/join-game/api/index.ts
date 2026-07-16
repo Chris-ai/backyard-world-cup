@@ -1,1 +1,2 @@
-export { getPlayerNameByToken, updatePlayerName } from "./players";
+export { claimPlayer, updatePlayerName } from "./players";
+export type { ClaimedPlayer } from "./players";

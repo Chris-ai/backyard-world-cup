@@ -7,13 +7,13 @@ type ResultScoreRow = {
 
 export async function getChallengeResult(
   challengeId: string,
-  playerToken: string,
+  playerId: string,
 ): Promise<number | null> {
   const { data, error } = await supabase
     .from("results")
     .select("score")
     .eq("challange_id", challengeId)
-    .eq("player_token", playerToken)
+    .eq("player_id", playerId)
     .maybeSingle<ResultScoreRow>();
 
   if (error) throw error;
@@ -22,18 +22,18 @@ export async function getChallengeResult(
 
 export async function saveChallengeResult(
   challengeId: string,
-  playerToken: string,
+  playerId: string,
   score: number,
 ): Promise<number> {
   const row = {
     challange_id: challengeId,
-    player_token: playerToken,
+    player_id: playerId,
     score,
   };
 
   const upsertResponse = await supabase
     .from("results")
-    .upsert(row, { onConflict: "player_token,challange_id" })
+    .upsert(row, { onConflict: "player_id,challange_id" })
     .select("score")
     .maybeSingle<ResultScoreRow>();
 
@@ -47,7 +47,7 @@ export async function saveChallengeResult(
     .from("results")
     .select("id")
     .eq("challange_id", challengeId)
-    .eq("player_token", playerToken)
+    .eq("player_id", playerId)
     .maybeSingle<{ id: string }>();
 
   if (existingResponse.error) throw existingResponse.error;

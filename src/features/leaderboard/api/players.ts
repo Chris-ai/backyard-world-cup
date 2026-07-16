@@ -3,13 +3,13 @@ import type { CountryCode } from "../../../shared/ui/country-flag";
 import { supabase } from "../../../utils/supabase";
 
 type LeaderboardPlayerRow = {
+  id: string;
   name: string | null;
   team_name: string;
-  token: string;
 };
 
 type ResultRow = {
-  player_token: string;
+  player_id: string;
   score: number | null;
 };
 
@@ -27,9 +27,9 @@ export async function getLeaderboardPlayers(): Promise<LeaderboardPlayer[]> {
   const [playersResponse, resultsResponse] = await Promise.all([
     supabase
       .from("players")
-      .select("token,team_name,name")
+      .select("id,team_name,name")
       .not("name", "is", null),
-    supabase.from("results").select("player_token,score"),
+    supabase.from("results").select("player_id,score"),
   ]);
 
   const error = playersResponse.error ?? resultsResponse.error;
@@ -38,7 +38,7 @@ export async function getLeaderboardPlayers(): Promise<LeaderboardPlayer[]> {
   const pointsByPlayer = new Map<string, number>();
   ((resultsResponse.data ?? []) as ResultRow[]).forEach((result) => {
     const score = Number.isFinite(result.score) ? Number(result.score) : 0;
-    pointsByPlayer.set(result.player_token, (pointsByPlayer.get(result.player_token) ?? 0) + score);
+    pointsByPlayer.set(result.player_id, (pointsByPlayer.get(result.player_id) ?? 0) + score);
   });
 
   return ((playersResponse.data ?? []) as LeaderboardPlayerRow[])
@@ -49,7 +49,7 @@ export async function getLeaderboardPlayers(): Promise<LeaderboardPlayer[]> {
       return [{
         country: player.team_name,
         name,
-        points: pointsByPlayer.get(player.token) ?? 0,
+        points: pointsByPlayer.get(player.id) ?? 0,
       }];
     })
     .sort((firstPlayer, secondPlayer) =>

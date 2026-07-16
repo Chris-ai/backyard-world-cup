@@ -26,10 +26,10 @@ const questions = questionsData.questions as QuizQuestion[];
 type HostQuizChallengeProps = {
   challengeId: string;
   maxPoints: number;
-  playerToken: string;
+  playerId: string;
 };
 
-export function HostQuizChallenge({ challengeId, maxPoints, playerToken }: HostQuizChallengeProps) {
+export function HostQuizChallenge({ challengeId, maxPoints, playerId }: HostQuizChallengeProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const [savedScore, setSavedScore] = useState<number | null>(null);
@@ -40,12 +40,12 @@ export function HostQuizChallenge({ challengeId, maxPoints, playerToken }: HostQ
 
   useEffect(() => {
     let isActive = true;
-    getChallengeResult(challengeId, playerToken)
+    getChallengeResult(challengeId, playerId)
       .then((score) => { if (isActive) setSavedScore(score); })
       .catch(() => { if (isActive) setError("Nie udało się sprawdzić zapisanego wyniku."); })
       .finally(() => { if (isActive) setIsLoadingResult(false); });
     return () => { isActive = false; };
-  }, [challengeId, playerToken]);
+  }, [challengeId, playerId]);
 
   if (isLoadingResult) return <div className="challenge-result-loading" aria-label="Ładowanie wyniku quizu" />;
   if (savedScore !== null) {
@@ -76,7 +76,7 @@ export function HostQuizChallenge({ challengeId, maxPoints, playerToken }: HostQ
 
     setIsSubmitting(true);
     try {
-      const score = await saveChallengeResult(challengeId, playerToken, calculateScore());
+      const score = await saveChallengeResult(challengeId, playerId, calculateScore());
       setSavedScore(score);
     } catch {
       setError("Nie udało się wysłać quizu. Spróbuj ponownie.");

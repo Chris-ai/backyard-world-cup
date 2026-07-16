@@ -11,20 +11,20 @@ export type AdminChallenge = {
 export type ChallengeStatus = "closed" | "open" | "pending";
 
 export type AdminPlayer = {
+  id: string;
   name: string | null;
   teamName: string;
-  token: string;
 };
 
 export type AdminResult = {
   challengeId: string;
-  playerToken: string;
+  playerId: string;
   score: number;
 };
 
 export type AdminBet = {
   bet: number;
-  playerToken: string;
+  playerId: string;
   predictedScoreA: number;
   predictedScoreB: number;
   predictedWinner: "a" | "b";
@@ -39,10 +39,10 @@ export type AdminDashboardData = {
 
 type ChallengeRow = { id: string; name: string; sort_order: number | null; status: ChallengeStatus; type: string };
 type LegacyChallengeRow = { id: string; isOpen: boolean; name: string; sort_order: number | null; type: string };
-type PlayerRow = { isAdmin: boolean | null; name: string | null; team_name: string; token: string };
-type ResultRow = { challange_id: string; player_token: string; score: number | null };
-type ExistingResultRow = { id: string; player_token: string };
-type BetRow = { bet: number; player_token: string; predicted_score_a: number; predicted_score_b: number; predicted_winner: "a" | "b" };
+type PlayerRow = { id: string; isAdmin: boolean | null; name: string | null; team_name: string };
+type ResultRow = { challange_id: string; player_id: string; score: number | null };
+type ExistingResultRow = { id: string; player_id: string };
+type BetRow = { bet: number; player_id: string; predicted_score_a: number; predicted_score_b: number; predicted_winner: "a" | "b" };
 
 type DatabaseError = {
   code?: string;
@@ -83,9 +83,9 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   }
 
   const [playersResponse, resultsResponse, betsResponse] = await Promise.all([
-    supabase.from("players").select("token,team_name,name,isAdmin").order("team_name"),
-    supabase.from("results").select("player_token,challange_id,score"),
-    supabase.from("bets").select("player_token,predicted_score_a,predicted_score_b,predicted_winner,bet"),
+    supabase.from("players").select("id,team_name,name,isAdmin").order("team_name"),
+    supabase.from("results").select("player_id,challange_id,score"),
+    supabase.from("bets").select("player_id,predicted_score_a,predicted_score_b,predicted_winner,bet"),
   ]);
 
   const error = challengeError ?? playersResponse.error ?? resultsResponse.error ?? betsResponse.error;
@@ -94,7 +94,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   return {
     bets: ((betsResponse.data ?? []) as BetRow[]).map((bet) => ({
       bet: Number(bet.bet),
-      playerToken: bet.player_token,
+      playerId: bet.player_id,
       predictedScoreA: Number(bet.predicted_score_a),
       predictedScoreB: Number(bet.predicted_score_b),
       predictedWinner: bet.predicted_winner,
@@ -109,13 +109,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     players: ((playersResponse.data ?? []) as PlayerRow[])
       .filter((player) => !player.isAdmin)
       .map((player) => ({
+        id: player.id,
         name: player.name?.trim() || null,
         teamName: player.team_name,
-        token: player.token,
       })),
     results: ((resultsResponse.data ?? []) as ResultRow[]).map((result) => ({
       challengeId: result.challange_id,
-      playerToken: result.player_token,
+      playerId: result.player_id,
       score: Number.isFinite(result.score) ? Number(result.score) : 0,
     })),
   };
@@ -146,35 +146,35 @@ export async function setChallengeStatus(challengeId: string, status: ChallengeS
 
 export async function saveChallengeScores(
   challengeId: string,
-  scores: Array<{ playerToken: string; score: number }>,
+  scores: Array<{ playerId: string; score: number }>,
 ): Promise<void> {
-  const rows = scores.map(({ playerToken, score }) => ({
+  const rows = scores.map(({ playerId, score }) => ({
     challange_id: challengeId,
-    player_token: playerToken,
+    player_id: playerId,
     score,
   }));
 
   const { error } = await supabase
     .from("results")
-    .upsert(rows, { onConflict: "player_token,challange_id" });
+    .upsert(rows, { onConflict: "player_id,challange_id" });
 
   if (!error) return;
   if (error.code !== "42P10") throwDatabaseError(error);
 
-  // Starsze schematy bez UNIQUE(player_token, challange_id): aktualizujemy
+  // Starsze schematy bez UNIQUE(player_id, challange_id): aktualizujemy
   // istniejące rekordy po id, a brakujące dopisujemy osobno.
   const { data: existingData, error: existingError } = await supabase
     .from("results")
-    .select("id,player_token")
+    .select("id,player_id")
     .eq("challange_id", challengeId);
 
   if (existingError) throwDatabaseError(existingError);
 
   const existingByPlayer = new Map(
-    ((existingData ?? []) as ExistingResultRow[]).map((result) => [result.player_token, result.id]),
+    ((existingData ?? []) as ExistingResultRow[]).map((result) => [result.player_id, result.id]),
   );
-  const rowsToInsert = rows.filter((row) => !existingByPlayer.has(row.player_token));
-  const rowsToUpdate = rows.filter((row) => existingByPlayer.has(row.player_token));
+  const rowsToInsert = rows.filter((row) => !existingByPlayer.has(row.player_id));
+  const rowsToUpdate = rows.filter((row) => existingByPlayer.has(row.player_id));
 
   const operations = [
     ...(rowsToInsert.length > 0
@@ -183,7 +183,7 @@ export async function saveChallengeScores(
     ...rowsToUpdate.map((row) => supabase
       .from("results")
       .update({ score: row.score })
-      .eq("id", existingByPlayer.get(row.player_token)!)),
+      .eq("id", existingByPlayer.get(row.player_id)!)),
   ];
 
   const responses = await Promise.all(operations);

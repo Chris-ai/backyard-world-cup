@@ -72,23 +72,23 @@ export function AdminPage() {
     const scoresByPlayer = new Map(
       dashboard.results
         .filter((result) => result.challengeId === challengeId)
-        .map((result) => [result.playerToken, result.score]),
+        .map((result) => [result.playerId, result.score]),
     );
 
     setDraftScores(Object.fromEntries(
-      dashboard.players.map((player) => [player.token, String(scoresByPlayer.get(player.token) ?? 0)]),
+      dashboard.players.map((player) => [player.id, String(scoresByPlayer.get(player.id) ?? 0)]),
     ));
     setActiveChallengeId(challengeId);
     setSuccessMessage("");
     setError("");
   };
 
-  const handleSave = async (providedScores?: Array<{ playerToken: string; score: number }>) => {
+  const handleSave = async (providedScores?: Array<{ playerId: string; score: number }>) => {
     if (!dashboard || !activeChallengeId) return;
 
     const scores = providedScores ?? dashboard.players.map((player) => ({
-      playerToken: player.token,
-      score: Number(draftScores[player.token] || 0),
+      playerId: player.id,
+      score: Number(draftScores[player.id] || 0),
     }));
 
     if (scores.some(({ score }) => !Number.isFinite(score))) {
@@ -231,7 +231,7 @@ export function AdminPage() {
                 <FinalBetAdminEditor
                   bets={dashboard.bets}
                   isSaving={isSaving}
-                  key={dashboard.bets.map((bet) => `${bet.playerToken}:${bet.predictedScoreA}:${bet.predictedScoreB}:${bet.predictedWinner}:${bet.bet}`).join("|")}
+                  key={dashboard.bets.map((bet) => `${bet.playerId}:${bet.predictedScoreA}:${bet.predictedScoreB}:${bet.predictedWinner}:${bet.bet}`).join("|")}
                   onError={setError}
                   onSave={handleSave}
                   players={dashboard.players}
@@ -246,7 +246,7 @@ export function AdminPage() {
                     {dashboard.players.map((player) => {
                       const country = isCountryCode(player.teamName) ? player.teamName : null;
                       return (
-                        <tr className={!player.name ? "is-pending" : undefined} key={player.token}>
+                        <tr className={!player.name ? "is-pending" : undefined} key={player.id}>
                           <td><strong>{player.name ?? "Jeszcze nie dołączył"}</strong></td>
                           <td>
                             <div className="admin-team">
@@ -260,10 +260,10 @@ export function AdminPage() {
                               type="number"
                               min="0"
                               step="1"
-                              value={draftScores[player.token] ?? "0"}
+                              value={draftScores[player.id] ?? "0"}
                               onChange={(event) => setDraftScores((current) => ({
                                 ...current,
-                                [player.token]: event.target.value,
+                                [player.id]: event.target.value,
                               }))}
                             />
                           </td>

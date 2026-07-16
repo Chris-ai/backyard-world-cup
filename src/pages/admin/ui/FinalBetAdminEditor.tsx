@@ -8,7 +8,7 @@ type FinalBetAdminEditorProps = {
   bets: AdminBet[];
   isSaving: boolean;
   onError: (message: string) => void;
-  onSave: (scores: Array<{ playerToken: string; score: number }>) => Promise<void>;
+  onSave: (scores: Array<{ playerId: string; score: number }>) => Promise<void>;
   players: AdminPlayer[];
 };
 
@@ -23,7 +23,7 @@ export function FinalBetAdminEditor({ bets, isSaving, onError, onSave, players }
   const [calculatedScores, setCalculatedScores] = useState<Record<string, number> | null>(null);
 
   const playerByToken = useMemo(
-    () => new Map(players.map((player) => [player.token, player])),
+    () => new Map(players.map((player) => [player.id, player])),
     [players],
   );
 
@@ -38,7 +38,7 @@ export function FinalBetAdminEditor({ bets, isSaving, onError, onSave, players }
     setCalculatedScores(Object.fromEntries(bets.map((bet) => {
       const winnerPoints = bet.predictedWinner === winner ? bet.bet : -bet.bet;
       const exactScorePoints = bet.predictedScoreA === parsedScoreA && bet.predictedScoreB === parsedScoreB ? 5 : 0;
-      return [bet.playerToken, winnerPoints + exactScorePoints];
+      return [bet.playerId, winnerPoints + exactScorePoints];
     })));
     onError("");
   };
@@ -59,7 +59,7 @@ export function FinalBetAdminEditor({ bets, isSaving, onError, onSave, players }
         </div>
         <div className="final-admin-settlement__actions">
           <button className="button-calculate" type="button" onClick={calculate}>PRZELICZ PUNKTY</button>
-          <button type="button" disabled={!calculatedScores || isSaving} onClick={() => calculatedScores && void onSave(bets.map((bet) => ({ playerToken: bet.playerToken, score: calculatedScores[bet.playerToken] ?? 0 })))}>
+          <button type="button" disabled={!calculatedScores || isSaving} onClick={() => calculatedScores && void onSave(bets.map((bet) => ({ playerId: bet.playerId, score: calculatedScores[bet.playerId] ?? 0 })))}>
             {isSaving ? "ZAPISUJĘ..." : "ZAPISZ WSZYSTKIE PUNKTY"}
           </button>
         </div>
@@ -71,9 +71,9 @@ export function FinalBetAdminEditor({ bets, isSaving, onError, onSave, players }
           <tbody>
             {bets.length === 0 && <tr><td className="final-bets-empty" colSpan={5}>Nikt jeszcze nie postawił beta.</td></tr>}
             {bets.map((bet) => {
-              const player = playerByToken.get(bet.playerToken);
+              const player = playerByToken.get(bet.playerId);
               const country = player && isCountryCode(player.teamName) ? player.teamName : null;
-              const calculatedScore = calculatedScores?.[bet.playerToken];
+              const calculatedScore = calculatedScores?.[bet.playerId];
               const scoreClassName = calculatedScore === undefined
                 ? "calculated-score is-empty"
                 : calculatedScore < 0
@@ -82,7 +82,7 @@ export function FinalBetAdminEditor({ bets, isSaving, onError, onSave, players }
                     ? "calculated-score is-zero"
                     : "calculated-score";
               return (
-                <tr key={bet.playerToken}>
+                <tr key={bet.playerId}>
                   <td><strong>{player?.name ?? "Nieznany gracz"}</strong></td>
                   <td><div className="admin-team">{country && <CountryFlag country={country} />}<span>{country ? COUNTRIES[country].namePl : player?.teamName ?? "—"}</span></div></td>
                   <td><div className="admin-bet-prediction">{bet.predictedWinner === "a" ? <SpainFlag /> : <ArgentinaFlag />}<strong>{bet.predictedScoreA}–{bet.predictedScoreB}</strong></div></td>

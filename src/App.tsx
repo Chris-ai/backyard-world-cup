@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { getPlayerNameByToken, updatePlayerName } from "./features/join-game/api";
+import { claimPlayer, updatePlayerName } from "./features/join-game/api";
 import { resolveInviteFromToken } from "./features/join-game/model";
 import { JoinGameModal } from "./features/join-game/ui";
 import { LeaderboardTable } from "./features/leaderboard/ui";
@@ -12,6 +12,8 @@ import "./App.css";
 
 type JoinedPlayer = {
   country: CountryCode;
+  id: string;
+  isAdmin: boolean;
   name: string;
 };
 
@@ -44,31 +46,24 @@ function App() {
   const inviteTarget = resolveInviteFromToken(inviteToken);
   const invitedCountry: CountryCode = inviteTarget?.type === "country" ? inviteTarget.country : "belgium";
   const [joinedPlayer, setJoinedPlayer] = useState<JoinedPlayer | null>(null);
-  const [isRestoringPlayer, setIsRestoringPlayer] = useState(
-    () => Boolean(
-      inviteTarget?.type === "country"
-      && inviteToken
-      && localStorage.getItem(PLAYER_TOKEN_STORAGE_KEY) === inviteToken,
-    ),
-  );
+  const [claimedPlayer, setClaimedPlayer] = useState<Awaited<ReturnType<typeof claimPlayer>> | null>(null);
+  const [isRestoringPlayer, setIsRestoringPlayer] = useState(Boolean(inviteToken));
+  const [authError, setAuthError] = useState("");
 
   useEffect(() => {
-    if (inviteTarget?.type === "admin" && inviteToken) {
-      localStorage.setItem(PLAYER_TOKEN_STORAGE_KEY, inviteToken);
-    }
-  }, [inviteTarget?.type, inviteToken]);
-
-  useEffect(() => {
-    if (!isRestoringPlayer || !inviteToken) return;
+    if (!inviteToken) return;
 
     let isActive = true;
 
-    getPlayerNameByToken(inviteToken)
-      .then((name) => {
-        if (isActive && name) setJoinedPlayer({ name, country: invitedCountry });
+    claimPlayer(inviteToken)
+      .then((player) => {
+        if (!isActive) return;
+        setClaimedPlayer(player);
+        localStorage.setItem(PLAYER_TOKEN_STORAGE_KEY, inviteToken);
+        if (player.name) setJoinedPlayer({ id: player.id, isAdmin: player.isAdmin, name: player.name, country: invitedCountry });
       })
-      .catch(() => {
-        // Przy problemie z odtworzeniem sesji użytkownik może ponowić dołączenie w modalu.
+      .catch((error: unknown) => {
+        if (isActive) setAuthError(error instanceof Error ? error.message : "Nie udało się przypisać gracza do sesji.");
       })
       .finally(() => {
         if (isActive) setIsRestoringPlayer(false);
@@ -77,16 +72,13 @@ function App() {
     return () => {
       isActive = false;
     };
-  }, [inviteToken, invitedCountry, isRestoringPlayer]);
+  }, [inviteToken, invitedCountry]);
 
   const handleJoin = async (name: string) => {
-    if (!inviteToken) {
-      throw new Error("Brak poprawnego tokenu zaproszenia w adresie.");
-    }
+    if (!claimedPlayer) throw new Error("Brak gracza przypisanego do sesji.");
 
-    const savedName = await updatePlayerName(inviteToken, name);
-    localStorage.setItem(PLAYER_TOKEN_STORAGE_KEY, inviteToken);
-    setJoinedPlayer({ name: savedName, country: invitedCountry });
+    const savedName = await updatePlayerName(claimedPlayer.id, name);
+    setJoinedPlayer({ id: claimedPlayer.id, isAdmin: claimedPlayer.isAdmin, name: savedName, country: invitedCountry });
   };
 
   if (!inviteToken) {
@@ -97,7 +89,11 @@ function App() {
     );
   }
 
-  if (inviteTarget?.type === "admin") {
+  if (authError) {
+    return <GameShell><NotFoundPage /></GameShell>;
+  }
+
+  if (claimedPlayer?.isAdmin) {
     return (
       <GameShell>
         <AdminPage />
@@ -110,7 +106,7 @@ function App() {
       {joinedPlayer && (
         <>
           <LeaderboardTable currentCountry={joinedPlayer.country} />
-          <ActiveChallengeDrawer playerToken={inviteToken} />
+          <ActiveChallengeDrawer playerId={joinedPlayer.id} />
         </>
       )}
 

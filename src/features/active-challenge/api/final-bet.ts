@@ -10,7 +10,7 @@ export type FinalBet = {
 type FinalBetRow = {
   bet: number;
   id?: string;
-  player_token?: string;
+  player_id?: string;
   predicted_score_a: number;
   predicted_score_b: number;
   predicted_winner: "a" | "b";
@@ -25,31 +25,31 @@ function mapBet(row: FinalBetRow): FinalBet {
   };
 }
 
-export async function getFinalBet(playerToken: string): Promise<FinalBet | null> {
+export async function getFinalBet(playerId: string): Promise<FinalBet | null> {
   const { data, error } = await supabase
     .from("bets")
     .select("bet,predicted_score_a,predicted_score_b,predicted_winner")
-    .eq("player_token", playerToken)
+    .eq("player_id", playerId)
     .maybeSingle<FinalBetRow>();
 
   if (error) throw error;
   return data ? mapBet(data) : null;
 }
 
-export async function getPlayerTotalPoints(playerToken: string): Promise<number> {
+export async function getPlayerTotalPoints(playerId: string): Promise<number> {
   const { data, error } = await supabase
     .from("results")
     .select("score")
-    .eq("player_token", playerToken);
+    .eq("player_id", playerId);
 
   if (error) throw error;
   return (data ?? []).reduce((total, result) => total + Number(result.score ?? 0), 0);
 }
 
-export async function saveFinalBet(playerToken: string, bet: FinalBet): Promise<FinalBet> {
+export async function saveFinalBet(playerId: string, bet: FinalBet): Promise<FinalBet> {
   const row = {
     bet: bet.bet,
-    player_token: playerToken,
+    player_id: playerId,
     predicted_score_a: bet.predictedScoreA,
     predicted_score_b: bet.predictedScoreB,
     predicted_winner: bet.predictedWinner,
@@ -58,7 +58,7 @@ export async function saveFinalBet(playerToken: string, bet: FinalBet): Promise<
   const existing = await supabase
     .from("bets")
     .select("id")
-    .eq("player_token", playerToken)
+    .eq("player_id", playerId)
     .maybeSingle<{ id: string }>();
 
   if (existing.error) throw existing.error;
