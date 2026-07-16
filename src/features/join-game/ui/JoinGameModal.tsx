@@ -32,9 +32,10 @@ export function JoinGameModal({ country, isOpen, onJoin }: JoinGameModalProps) {
     try {
       await onJoin(playerName);
     } catch (joinError) {
-      const message = joinError instanceof Error
-        ? joinError.message
-        : "Nie udało się dołączyć do gry. Spróbuj ponownie.";
+      const message =
+        joinError instanceof Error
+          ? joinError.message
+          : "Nie udało się dołączyć do gry. Spróbuj ponownie.";
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -50,15 +51,17 @@ export function JoinGameModal({ country, isOpen, onJoin }: JoinGameModalProps) {
     >
       <div className="join-modal__content">
         <div className="flag-wrap">
-          <div className="flag-badge"><CountryFlag country={country} size="large" /></div>
-          <span className="team-tag">YOUR TEAM</span>
+          <div className="flag-badge">
+            <CountryFlag country={country} size="large" />
+          </div>
         </div>
 
         <p className="welcome-label">WELCOME TO THE CUP</p>
-        <h2 id="join-title">Witaj w drużynie<br /><em>{countryDetails.welcomeNamePl}!</em></h2>
-        <p id="join-description" className="modal-description">
-          Jesteś o krok od wejścia do gry. Powiedz nam, jak masz na imię.
-        </p>
+        <h2 id="join-title">
+          Witaj w drużynie
+          <br />
+          <em>{countryDetails.welcomeNamePl}!</em>
+        </h2>
 
         <form onSubmit={handleSubmit} noValidate>
           <label htmlFor="player-name">TWOJE IMIĘ</label>
@@ -84,21 +87,21 @@ export function JoinGameModal({ country, isOpen, onJoin }: JoinGameModalProps) {
               aria-describedby={error ? "name-error" : undefined}
             />
           </div>
-          {error && <p className="error-message" id="name-error" role="alert">{error}</p>}
+          {error && (
+            <p className="error-message" id="name-error" role="alert">
+              {error}
+            </p>
+          )}
 
-          <button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+          >
             {isSubmitting ? "DOŁĄCZAM..." : "DOŁĄCZ DO GRY"}
             {!isSubmitting && <span aria-hidden="true">→</span>}
           </button>
         </form>
-
-        <p className="privacy-note">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="6" y="10" width="12" height="10" rx="2" />
-            <path d="M9 10V7a3 3 0 0 1 6 0v3" />
-          </svg>
-          Twoje imię będzie widoczne tylko dla uczestników gry
-        </p>
       </div>
     </Modal>
   );
