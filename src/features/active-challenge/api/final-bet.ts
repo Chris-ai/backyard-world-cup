@@ -1,11 +1,5 @@
 import { supabase } from "../../../utils/supabase";
-
-export type FinalBet = {
-  bet: number;
-  predictedScoreA: number;
-  predictedScoreB: number;
-  predictedWinner: "a" | "b";
-};
+import type { FinalBet } from "../model";
 
 type FinalBetRow = {
   bet: number;

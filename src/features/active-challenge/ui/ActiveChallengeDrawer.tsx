@@ -7,6 +7,7 @@ import { DocumentLinearIcon } from "../../../shared/ui/icons";
 import { FinalBetChallenge } from "./FinalBetChallenge";
 import { HallOfFameChallenge } from "./HallOfFameChallenge";
 import { HostQuizChallenge } from "./HostQuizChallenge";
+import { CHALLENGE_NAMES, normalizeChallengeName } from "../../../shared/model/challenge";
 import "./ActiveChallengeDrawer.css";
 
 type ActiveChallengeDrawerProps = {
@@ -46,10 +47,10 @@ export function ActiveChallengeDrawer({ playerId }: ActiveChallengeDrawerProps) 
   }, [refreshChallenges]);
 
   const activeChallenge = challenges[0];
-  const normalizedChallengeName = activeChallenge?.name.toLocaleLowerCase("pl");
-  const isHallOfFame = normalizedChallengeName === "galeria sław";
-  const isGrandeFinale = normalizedChallengeName === "grande finale";
-  const isHostQuiz = normalizedChallengeName === "kto zna host";
+  const normalizedChallengeName = normalizeChallengeName(activeChallenge?.name);
+  const isHallOfFame = normalizedChallengeName === CHALLENGE_NAMES.hallOfFame;
+  const isGrandeFinale = normalizedChallengeName === CHALLENGE_NAMES.grandeFinale;
+  const isHostQuiz = normalizedChallengeName === CHALLENGE_NAMES.hostQuiz;
   const activeChallengeId = activeChallenge?.id;
   const activeChallengeStatus = activeChallenge?.status;
 

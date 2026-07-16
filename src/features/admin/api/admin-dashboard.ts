@@ -1,41 +1,6 @@
 import { supabase } from "../../../utils/supabase";
-
-export type AdminChallenge = {
-  id: string;
-  name: string;
-  sortOrder: number;
-  status: ChallengeStatus;
-  type: string;
-};
-
-export type ChallengeStatus = "closed" | "open" | "pending";
-
-export type AdminPlayer = {
-  id: string;
-  name: string | null;
-  teamName: string;
-};
-
-export type AdminResult = {
-  challengeId: string;
-  playerId: string;
-  score: number;
-};
-
-export type AdminBet = {
-  bet: number;
-  playerId: string;
-  predictedScoreA: number;
-  predictedScoreB: number;
-  predictedWinner: "a" | "b";
-};
-
-export type AdminDashboardData = {
-  bets: AdminBet[];
-  challenges: AdminChallenge[];
-  players: AdminPlayer[];
-  results: AdminResult[];
-};
+import type { ChallengeStatus } from "../../../shared/model/challenge";
+import type { AdminDashboardData, PlayerScore } from "../model";
 
 type ChallengeRow = { id: string; name: string; sort_order: number | null; status: ChallengeStatus; type: string };
 type LegacyChallengeRow = { id: string; isOpen: boolean; name: string; sort_order: number | null; type: string };
@@ -146,7 +111,7 @@ export async function setChallengeStatus(challengeId: string, status: ChallengeS
 
 export async function saveChallengeScores(
   challengeId: string,
-  scores: Array<{ playerId: string; score: number }>,
+  scores: PlayerScore[],
 ): Promise<void> {
   const rows = scores.map(({ playerId, score }) => ({
     challange_id: challengeId,

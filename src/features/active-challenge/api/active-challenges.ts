@@ -1,12 +1,5 @@
 import { supabase } from "../../../utils/supabase";
-
-export type ActiveChallenge = {
-  id: string;
-  maxPoints: number;
-  name: string;
-  sortOrder: number;
-  status: "open" | "pending";
-};
+import type { ActiveChallenge } from "../model";
 
 type ActiveChallengeRow = {
   id: string;

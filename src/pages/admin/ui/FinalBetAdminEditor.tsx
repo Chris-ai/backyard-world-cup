@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import type { AdminBet, AdminPlayer } from "../../../features/admin/api";
 import { ArgentinaFlag, SpainFlag } from "../../../shared/ui/country-flag/flags";
-import { COUNTRIES, CountryFlag } from "../../../shared/ui/country-flag";
-import type { CountryCode } from "../../../shared/ui/country-flag";
+import { COUNTRIES, CountryFlag, isCountryCode } from "../../../shared/ui/country-flag";
 
 type FinalBetAdminEditorProps = {
   bets: AdminBet[];
@@ -11,10 +10,6 @@ type FinalBetAdminEditorProps = {
   onSave: (scores: Array<{ playerId: string; score: number }>) => Promise<void>;
   players: AdminPlayer[];
 };
-
-function isCountryCode(value: string): value is CountryCode {
-  return value in COUNTRIES;
-}
 
 export function FinalBetAdminEditor({ bets, isSaving, onError, onSave, players }: FinalBetAdminEditorProps) {
   const [winner, setWinner] = useState<"a" | "b" | null>(null);

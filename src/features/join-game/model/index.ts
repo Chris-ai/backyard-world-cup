@@ -5,3 +5,5 @@ export {
   resolveInviteFromToken,
 } from "./country-invites";
 export type { InviteTarget } from "./country-invites";
+export { useGameSession } from "./useGameSession";
+export type { JoinedPlayer } from "./useGameSession";

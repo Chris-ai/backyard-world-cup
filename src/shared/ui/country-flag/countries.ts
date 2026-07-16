@@ -58,3 +58,7 @@ export const COUNTRIES: Record<CountryCode, CountryDefinition> = {
 };
 
 export const AVAILABLE_COUNTRIES = Object.values(COUNTRIES);
+
+export function isCountryCode(value: string): value is CountryCode {
+  return value in COUNTRIES;
+}

@@ -1,25 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import questionsData from "../../../assets/questions.json";
-import { getChallengeResult, saveChallengeResult } from "../api";
 import { ChallengeResultScreen } from "./ChallengeResultScreen";
-
-type SingleChoiceQuestion = {
-  answers: string[];
-  correctAnswer: string;
-  easterEgg?: string;
-  question: string;
-  type: "single-choice";
-};
-
-type MultipleChoiceQuestion = {
-  answers: string[];
-  correctAnswer: string[];
-  maxSelections: number;
-  question: string;
-  type: "multiple-choice";
-};
-
-type QuizQuestion = SingleChoiceQuestion | MultipleChoiceQuestion;
+import { useChallengeResult } from "../model";
+import type { QuizQuestion } from "../model";
 
 const questions = questionsData.questions as QuizQuestion[];
 
@@ -32,24 +15,17 @@ type HostQuizChallengeProps = {
 export function HostQuizChallenge({ challengeId, maxPoints, playerId }: HostQuizChallengeProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
-  const [savedScore, setSavedScore] = useState<number | null>(null);
-  const [isLoadingResult, setIsLoadingResult] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShowingEasterEgg, setIsShowingEasterEgg] = useState(false);
-  const [error, setError] = useState("");
+  const result = useChallengeResult({
+    challengeId,
+    playerId,
+    loadErrorMessage: "Nie udało się sprawdzić zapisanego wyniku.",
+    saveErrorMessage: "Nie udało się wysłać quizu. Spróbuj ponownie.",
+  });
 
-  useEffect(() => {
-    let isActive = true;
-    getChallengeResult(challengeId, playerId)
-      .then((score) => { if (isActive) setSavedScore(score); })
-      .catch(() => { if (isActive) setError("Nie udało się sprawdzić zapisanego wyniku."); })
-      .finally(() => { if (isActive) setIsLoadingResult(false); });
-    return () => { isActive = false; };
-  }, [challengeId, playerId]);
-
-  if (isLoadingResult) return <div className="challenge-result-loading" aria-label="Ładowanie wyniku quizu" />;
-  if (savedScore !== null) {
-    return <ChallengeResultScreen maxPoints={maxPoints} score={savedScore} title="Quiz ukończony" />;
+  if (result.isLoading) return <div className="challenge-result-loading" aria-label="Ładowanie wyniku quizu" />;
+  if (result.score !== null) {
+    return <ChallengeResultScreen maxPoints={maxPoints} score={result.score} title="Quiz ukończony" />;
   }
 
   const question = questions[currentQuestionIndex];
@@ -74,20 +50,12 @@ export function HostQuizChallenge({ challengeId, maxPoints, playerId }: HostQuiz
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const score = await saveChallengeResult(challengeId, playerId, calculateScore());
-      setSavedScore(score);
-    } catch {
-      setError("Nie udało się wysłać quizu. Spróbuj ponownie.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    await result.submit(calculateScore());
   };
 
   const handleContinue = async () => {
-    if (!isAnswerComplete || isSubmitting) return;
-    setError("");
+    if (!isAnswerComplete || result.isSubmitting) return;
+    result.setError("");
 
     if (question.type === "single-choice" && question.easterEgg && selectedAnswers[0] === question.correctAnswer) {
       setIsShowingEasterEgg(true);
@@ -107,8 +75,8 @@ export function HostQuizChallenge({ challengeId, maxPoints, playerId }: HostQuiz
           <strong id="active-challenge-description">Bonusowy punkt trafia na Twoje konto.</strong>
         </div>
         <div className="challenge-submit-bar quiz-submit-bar">
-          <button type="button" disabled={isSubmitting} onClick={() => void advanceOrSubmit()}>
-            {isSubmitting ? "WYSYŁAM..." : isLastQuestion ? "WYŚLIJ" : "DALEJ"}
+          <button type="button" disabled={result.isSubmitting} onClick={() => void advanceOrSubmit()}>
+            {result.isSubmitting ? "WYSYŁAM..." : isLastQuestion ? "WYŚLIJ" : "DALEJ"}
           </button>
         </div>
       </div>
@@ -165,9 +133,9 @@ export function HostQuizChallenge({ challengeId, maxPoints, playerId }: HostQuiz
       </div>
 
       <div className="challenge-submit-bar quiz-submit-bar">
-        {error && <span role="alert">{error}</span>}
-        <button type="button" disabled={!isAnswerComplete || isSubmitting} onClick={() => void handleContinue()}>
-          {isSubmitting ? "WYSYŁAM..." : isLastQuestion ? "WYŚLIJ" : "DALEJ"}
+        {result.error && <span role="alert">{result.error}</span>}
+        <button type="button" disabled={!isAnswerComplete || result.isSubmitting} onClick={() => void handleContinue()}>
+          {result.isSubmitting ? "WYSYŁAM..." : isLastQuestion ? "WYŚLIJ" : "DALEJ"}
         </button>
       </div>
     </div>

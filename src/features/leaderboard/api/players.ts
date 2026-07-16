@@ -1,4 +1,4 @@
-import { COUNTRIES } from "../../../shared/ui/country-flag";
+import { isCountryCode } from "../../../shared/ui/country-flag";
 import type { CountryCode } from "../../../shared/ui/country-flag";
 import { supabase } from "../../../utils/supabase";
 
@@ -18,10 +18,6 @@ export type LeaderboardPlayer = {
   name: string;
   points: number;
 };
-
-function isCountryCode(value: string): value is CountryCode {
-  return value in COUNTRIES;
-}
 
 export async function getLeaderboardPlayers(): Promise<LeaderboardPlayer[]> {
   const [playersResponse, resultsResponse] = await Promise.all([
