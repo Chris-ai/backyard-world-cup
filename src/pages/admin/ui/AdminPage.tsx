@@ -247,7 +247,7 @@ export function AdminPage() {
                   <div className="challenge-editor__actions">
                     {activeChallenge.type === "online" && (
                       <>
-                        {activeChallenge.status !== "open" && (
+                        {activeChallenge.status === "closed" && (
                           <button
                             className="button-start"
                             type="button"
@@ -261,7 +261,7 @@ export function AdminPage() {
                               : "OTWÓRZ CHALLENGE"}
                           </button>
                         )}
-                        {activeChallenge.status !== "pending" && (
+                        {activeChallenge.status === "open" && (
                           <button
                             className="button-pending"
                             type="button"
@@ -273,7 +273,7 @@ export function AdminPage() {
                             ROZPOCZNIJ ZADANIE
                           </button>
                         )}
-                        {activeChallenge.status !== "closed" && (
+                        {(activeChallenge.status === "open" || activeChallenge.status === "pending") && (
                           <button
                             className="button-stop"
                             type="button"
