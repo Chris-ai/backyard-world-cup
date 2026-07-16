@@ -4,7 +4,10 @@ import {
   saveChallengeScores,
   setChallengeStatus,
 } from "../../../features/admin/api";
-import type { AdminDashboardData, ChallengeStatus } from "../../../features/admin/api";
+import type {
+  AdminDashboardData,
+  ChallengeStatus,
+} from "../../../features/admin/api";
 import { COUNTRIES, CountryFlag } from "../../../shared/ui/country-flag";
 import type { CountryCode } from "../../../shared/ui/country-flag";
 import { Toast } from "../../../shared/ui/toast";
@@ -18,12 +21,16 @@ function isCountryCode(value: string): value is CountryCode {
 
 export function AdminPage() {
   const [dashboard, setDashboard] = useState<AdminDashboardData | null>(null);
-  const [activeChallengeId, setActiveChallengeId] = useState<string | null>(null);
+  const [activeChallengeId, setActiveChallengeId] = useState<string | null>(
+    null,
+  );
   const [draftScores, setDraftScores] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [togglingChallengeId, setTogglingChallengeId] = useState<string | null>(null);
+  const [togglingChallengeId, setTogglingChallengeId] = useState<string | null>(
+    null,
+  );
   const [successMessage, setSuccessMessage] = useState("");
 
   const loadDashboard = useCallback(async () => {
@@ -43,10 +50,26 @@ export function AdminPage() {
 
     const channel = supabase
       .channel("admin-dashboard")
-      .on("postgres_changes", { event: "*", schema: "public", table: "challenges" }, () => void loadDashboard())
-      .on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => void loadDashboard())
-      .on("postgres_changes", { event: "*", schema: "public", table: "results" }, () => void loadDashboard())
-      .on("postgres_changes", { event: "*", schema: "public", table: "bets" }, () => void loadDashboard())
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "challenges" },
+        () => void loadDashboard(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "players" },
+        () => void loadDashboard(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "results" },
+        () => void loadDashboard(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "bets" },
+        () => void loadDashboard(),
+      )
       .subscribe();
 
     return () => {
@@ -56,7 +79,10 @@ export function AdminPage() {
   }, [loadDashboard]);
 
   const activeChallenge = useMemo(
-    () => dashboard?.challenges.find((challenge) => challenge.id === activeChallengeId) ?? null,
+    () =>
+      dashboard?.challenges.find(
+        (challenge) => challenge.id === activeChallengeId,
+      ) ?? null,
     [activeChallengeId, dashboard?.challenges],
   );
 
@@ -75,21 +101,30 @@ export function AdminPage() {
         .map((result) => [result.playerId, result.score]),
     );
 
-    setDraftScores(Object.fromEntries(
-      dashboard.players.map((player) => [player.id, String(scoresByPlayer.get(player.id) ?? 0)]),
-    ));
+    setDraftScores(
+      Object.fromEntries(
+        dashboard.players.map((player) => [
+          player.id,
+          String(scoresByPlayer.get(player.id) ?? 0),
+        ]),
+      ),
+    );
     setActiveChallengeId(challengeId);
     setSuccessMessage("");
     setError("");
   };
 
-  const handleSave = async (providedScores?: Array<{ playerId: string; score: number }>) => {
+  const handleSave = async (
+    providedScores?: Array<{ playerId: string; score: number }>,
+  ) => {
     if (!dashboard || !activeChallengeId) return;
 
-    const scores = providedScores ?? dashboard.players.map((player) => ({
-      playerId: player.id,
-      score: Number(draftScores[player.id] || 0),
-    }));
+    const scores =
+      providedScores ??
+      dashboard.players.map((player) => ({
+        playerId: player.id,
+        score: Number(draftScores[player.id] || 0),
+      }));
 
     if (scores.some(({ score }) => !Number.isFinite(score))) {
       setError("Każdy wynik musi być poprawną liczbą.");
@@ -105,13 +140,16 @@ export function AdminPage() {
       await loadDashboard();
       setSuccessMessage("Wszystkie punkty zostały zapisane.");
     } catch {
-      setError("Nie udało się zapisać punktów. Sprawdź konfigurację tabeli results.");
+      setError(
+        "Nie udało się zapisać punktów. Sprawdź konfigurację tabeli results.",
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
-  const isGrandeFinale = activeChallenge?.name.toLocaleLowerCase("pl") === "grande finale";
+  const isGrandeFinale =
+    activeChallenge?.name.toLocaleLowerCase("pl") === "grande finale";
 
   const handleChallengeState = async (nextStatus: ChallengeStatus) => {
     if (!activeChallenge || activeChallenge.status === nextStatus) return;
@@ -139,143 +177,193 @@ export function AdminPage() {
   return (
     <section className="admin-screen" aria-labelledby="admin-title">
       <header className="view-navbar admin-navbar">
-        <h1 id="admin-title">Panel administratora</h1>
+        <h1 id="admin-title">Gospodarz</h1>
       </header>
 
-      {error && <Toast message={error} type="danger" onClose={() => setError("")} />}
-      {successMessage && <Toast message={successMessage} type="success" onClose={() => setSuccessMessage("")} />}
+      {error && (
+        <Toast message={error} type="danger" onClose={() => setError("")} />
+      )}
+      {successMessage && (
+        <Toast
+          message={successMessage}
+          type="success"
+          onClose={() => setSuccessMessage("")}
+        />
+      )}
 
       <div className="admin-page">
-        {isLoading && <div className="admin-loading" aria-label="Ładowanie konkurencji" />}
+        {isLoading && (
+          <div className="admin-loading" aria-label="Ładowanie konkurencji" />
+        )}
 
         {dashboard && (
           <>
-          <div className="challenge-grid" aria-label="Lista konkurencji">
-            {dashboard.challenges.map((challenge, index) => {
-              const isActive = challenge.id === activeChallengeId;
-              return (
-                <button
-                  className={`challenge-tile ${isActive ? "challenge-tile--active" : ""} challenge-tile--${challenge.status}`.trim()}
-                  key={challenge.id}
-                  type="button"
-                  onClick={() => toggleChallenge(challenge.id)}
-                  aria-expanded={isActive}
-                  aria-controls="challenge-results"
-                >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <strong>{challenge.name}</strong>
-                  <small>
-                    {challenge.status === "open"
-                      ? "AKTYWNE"
-                      : challenge.status === "pending"
-                        ? "W TRAKCIE"
-                        : challenge.status === "closed" ? "ZAMKNIĘTE" : challenge.type.toUpperCase()}
-                  </small>
-                  <i aria-hidden="true">{isActive ? "−" : "+"}</i>
-                </button>
-              );
-            })}
-          </div>
-
-          {activeChallenge && (
-            <div className="challenge-editor" id="challenge-results">
-              <div className="challenge-editor__heading">
-                <div>
-                  <p>EDYCJA PUNKTÓW</p>
-                  <h2>{activeChallenge.name}</h2>
-                </div>
-                <div className="challenge-editor__actions">
-                  {activeChallenge.type === "online" && (
-                    <>
-                      {activeChallenge.status !== "open" && (
-                        <button
-                          className="button-start"
-                          type="button"
-                          onClick={() => void handleChallengeState("open")}
-                          disabled={togglingChallengeId === activeChallenge.id}
-                        >
-                          {togglingChallengeId === activeChallenge.id ? "ZMIENIAM..." : "OTWÓRZ CHALLENGE"}
-                        </button>
-                      )}
-                      {activeChallenge.status !== "pending" && (
-                        <button
-                          className="button-pending"
-                          type="button"
-                          onClick={() => void handleChallengeState("pending")}
-                          disabled={togglingChallengeId === activeChallenge.id}
-                        >
-                          ROZPOCZNIJ ZADANIE
-                        </button>
-                      )}
-                      {activeChallenge.status !== "closed" && (
-                        <button
-                          className="button-stop"
-                          type="button"
-                          onClick={() => void handleChallengeState("closed")}
-                          disabled={togglingChallengeId === activeChallenge.id}
-                        >
-                          ZAMKNIJ CHALLENGE
-                        </button>
-                      )}
-                    </>
-                  )}
-                  {!isGrandeFinale && (
-                    <button type="button" onClick={() => void handleSave()} disabled={isSaving}>
-                      {isSaving ? "ZAPISUJĘ..." : "ZAPISZ WSZYSTKIE PUNKTY"}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {isGrandeFinale ? (
-                <FinalBetAdminEditor
-                  bets={dashboard.bets}
-                  isSaving={isSaving}
-                  key={dashboard.bets.map((bet) => `${bet.playerId}:${bet.predictedScoreA}:${bet.predictedScoreB}:${bet.predictedWinner}:${bet.bet}`).join("|")}
-                  onError={setError}
-                  onSave={handleSave}
-                  players={dashboard.players}
-                />
-              ) : (
-                <div className="admin-table-scroll">
-                <table>
-                  <thead>
-                    <tr><th>GRACZ</th><th>KRAJ</th><th>PUNKTY</th></tr>
-                  </thead>
-                  <tbody>
-                    {dashboard.players.map((player) => {
-                      const country = isCountryCode(player.teamName) ? player.teamName : null;
-                      return (
-                        <tr className={!player.name ? "is-pending" : undefined} key={player.id}>
-                          <td><strong>{player.name ?? "Jeszcze nie dołączył"}</strong></td>
-                          <td>
-                            <div className="admin-team">
-                              {country && <CountryFlag country={country} />}
-                              <span>{country ? COUNTRIES[country].namePl : player.teamName}</span>
-                            </div>
-                          </td>
-                          <td>
-                            <input
-                              aria-label={`Punkty: ${player.name ?? player.teamName}`}
-                              type="number"
-                              min="0"
-                              step="1"
-                              value={draftScores[player.id] ?? "0"}
-                              onChange={(event) => setDraftScores((current) => ({
-                                ...current,
-                                [player.id]: event.target.value,
-                              }))}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                </div>
-              )}
+            <div className="challenge-grid" aria-label="Lista konkurencji">
+              {dashboard.challenges.map((challenge, index) => {
+                const isActive = challenge.id === activeChallengeId;
+                return (
+                  <button
+                    className={`challenge-tile ${isActive ? "challenge-tile--active" : ""} challenge-tile--${challenge.status}`.trim()}
+                    key={challenge.id}
+                    type="button"
+                    onClick={() => toggleChallenge(challenge.id)}
+                    aria-expanded={isActive}
+                    aria-controls="challenge-results"
+                  >
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{challenge.name}</strong>
+                    <small>
+                      {challenge.status === "open"
+                        ? "AKTYWNE"
+                        : challenge.status === "pending"
+                          ? "W TRAKCIE"
+                          : challenge.status === "closed"
+                            ? "ZAMKNIĘTE"
+                            : challenge.type.toUpperCase()}
+                    </small>
+                    <i aria-hidden="true">{isActive ? "−" : "+"}</i>
+                  </button>
+                );
+              })}
             </div>
-          )}
+
+            {activeChallenge && (
+              <div className="challenge-editor" id="challenge-results">
+                <div className="challenge-editor__heading">
+                  <div>
+                    <p>EDYCJA PUNKTÓW</p>
+                    <h2>{activeChallenge.name}</h2>
+                  </div>
+                  <div className="challenge-editor__actions">
+                    {activeChallenge.type === "online" && (
+                      <>
+                        {activeChallenge.status !== "open" && (
+                          <button
+                            className="button-start"
+                            type="button"
+                            onClick={() => void handleChallengeState("open")}
+                            disabled={
+                              togglingChallengeId === activeChallenge.id
+                            }
+                          >
+                            {togglingChallengeId === activeChallenge.id
+                              ? "ZMIENIAM..."
+                              : "OTWÓRZ CHALLENGE"}
+                          </button>
+                        )}
+                        {activeChallenge.status !== "pending" && (
+                          <button
+                            className="button-pending"
+                            type="button"
+                            onClick={() => void handleChallengeState("pending")}
+                            disabled={
+                              togglingChallengeId === activeChallenge.id
+                            }
+                          >
+                            ROZPOCZNIJ ZADANIE
+                          </button>
+                        )}
+                        {activeChallenge.status !== "closed" && (
+                          <button
+                            className="button-stop"
+                            type="button"
+                            onClick={() => void handleChallengeState("closed")}
+                            disabled={
+                              togglingChallengeId === activeChallenge.id
+                            }
+                          >
+                            ZAMKNIJ CHALLENGE
+                          </button>
+                        )}
+                      </>
+                    )}
+                    {!isGrandeFinale && (
+                      <button
+                        type="button"
+                        onClick={() => void handleSave()}
+                        disabled={isSaving}
+                      >
+                        {isSaving ? "ZAPISUJĘ..." : "ZAPISZ WSZYSTKIE PUNKTY"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {isGrandeFinale ? (
+                  <FinalBetAdminEditor
+                    bets={dashboard.bets}
+                    isSaving={isSaving}
+                    key={dashboard.bets
+                      .map(
+                        (bet) =>
+                          `${bet.playerId}:${bet.predictedScoreA}:${bet.predictedScoreB}:${bet.predictedWinner}:${bet.bet}`,
+                      )
+                      .join("|")}
+                    onError={setError}
+                    onSave={handleSave}
+                    players={dashboard.players}
+                  />
+                ) : (
+                  <div className="admin-table-scroll">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>GRACZ</th>
+                          <th>KRAJ</th>
+                          <th>PUNKTY</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dashboard.players.map((player) => {
+                          const country = isCountryCode(player.teamName)
+                            ? player.teamName
+                            : null;
+                          return (
+                            <tr
+                              className={
+                                !player.name ? "is-pending" : undefined
+                              }
+                              key={player.id}
+                            >
+                              <td>
+                                <strong>
+                                  {player.name ?? "Jeszcze nie dołączył"}
+                                </strong>
+                              </td>
+                              <td>
+                                <div className="admin-team">
+                                  {country && <CountryFlag country={country} />}
+                                  <span>
+                                    {country
+                                      ? COUNTRIES[country].namePl
+                                      : player.teamName}
+                                  </span>
+                                </div>
+                              </td>
+                              <td>
+                                <input
+                                  aria-label={`Punkty: ${player.name ?? player.teamName}`}
+                                  type="number"
+                                  min="0"
+                                  step="1"
+                                  value={draftScores[player.id] ?? "0"}
+                                  onChange={(event) =>
+                                    setDraftScores((current) => ({
+                                      ...current,
+                                      [player.id]: event.target.value,
+                                    }))
+                                  }
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
