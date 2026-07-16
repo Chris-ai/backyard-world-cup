@@ -8,10 +8,11 @@ import { supabase } from "../../../utils/supabase";
 import "./LeaderboardTable.css";
 
 type LeaderboardTableProps = {
-  currentCountry: CountryCode;
+  currentCountry?: CountryCode;
+  embedded?: boolean;
 };
 
-export function LeaderboardTable({ currentCountry }: LeaderboardTableProps) {
+export function LeaderboardTable({ currentCountry, embedded = false }: LeaderboardTableProps) {
   const [players, setPlayers] = useState<LeaderboardPlayer[]>([]);
   const [changedCountries, setChangedCountries] = useState<Set<CountryCode>>(new Set());
   const [error, setError] = useState("");
@@ -129,11 +130,17 @@ export function LeaderboardTable({ currentCountry }: LeaderboardTableProps) {
   };
 
   return (
-    <section className="leaderboard" aria-labelledby="leaderboard-title">
-      <header className="view-navbar leaderboard-navbar">
-        <h1 id="leaderboard-title">Tabela wyników</h1>
-        <div id="leaderboard-navbar-actions" className="leaderboard-navbar__actions" />
-      </header>
+    <section
+      className={`leaderboard ${embedded ? "leaderboard--embedded" : ""}`.trim()}
+      aria-label={embedded ? "Tabela wyników" : undefined}
+      aria-labelledby={embedded ? undefined : "leaderboard-title"}
+    >
+      {!embedded && (
+        <header className="view-navbar leaderboard-navbar">
+          <h1 id="leaderboard-title">Tabela wyników</h1>
+          <div id="leaderboard-navbar-actions" className="leaderboard-navbar__actions" />
+        </header>
+      )}
 
       {error && <Toast message={error} type="danger" onClose={() => setError("")} />}
 

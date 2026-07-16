@@ -11,8 +11,10 @@ import type {
 import { COUNTRIES, CountryFlag } from "../../../shared/ui/country-flag";
 import type { CountryCode } from "../../../shared/ui/country-flag";
 import { Toast } from "../../../shared/ui/toast";
+import { LeaderboardIcon } from "../../../shared/ui/icons";
 import { supabase } from "../../../utils/supabase";
 import { FinalBetAdminEditor } from "./FinalBetAdminEditor";
+import { AdminLeaderboardDrawer } from "./AdminLeaderboardDrawer";
 import "./AdminPage.css";
 
 function isCountryCode(value: string): value is CountryCode {
@@ -32,6 +34,7 @@ export function AdminPage() {
     null,
   );
   const [successMessage, setSuccessMessage] = useState("");
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   const loadDashboard = useCallback(async () => {
     try {
@@ -178,7 +181,14 @@ export function AdminPage() {
     <section className="admin-screen" aria-labelledby="admin-title">
       <header className="view-navbar admin-navbar">
         <h1 id="admin-title">Gospodarz</h1>
+        <div className="admin-navbar__actions">
+          <button type="button" onClick={() => setIsLeaderboardOpen(true)} aria-label="Pokaż tabelę wyników">
+            <LeaderboardIcon />
+          </button>
+        </div>
       </header>
+
+      {isLeaderboardOpen && <AdminLeaderboardDrawer onClose={() => setIsLeaderboardOpen(false)} />}
 
       {error && (
         <Toast message={error} type="danger" onClose={() => setError("")} />
