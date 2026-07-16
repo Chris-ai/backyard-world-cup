@@ -1,0 +1,53 @@
+@keyframes flag-in {
+  from { transform: rotate(-8deg) scale(.8); }
+  to { transform: rotate(0) scale(1); }
+}
+
+.join-modal__content { padding: 28px 40px 30px; text-align: center; }
+.flag-wrap { width: max-content; margin: 0 auto 21px; position: relative; animation: flag-in .55s .12s cubic-bezier(.2,.8,.2,1) both; }
+.flag-badge { width: 92px; height: 92px; display: grid; place-items: center; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 12px 30px rgba(16,28,52,.14); }
+.team-tag { position: absolute; right: -43px; bottom: 4px; padding: 6px 10px; transform: rotate(3deg); background: #f2c94c; border: 0; border-radius: 4px; box-shadow: 0 5px 14px rgba(16,28,52,.16); color: #101c34; font-size: .52rem; letter-spacing: .1em; font-weight: 900; }
+.welcome-label { color: #c51c35; font-size: .62rem; font-weight: 900; letter-spacing: .2em; }
+.join-modal h2 { margin: 7px 0 11px; color: #111c32; font-size: 2.15rem; line-height: 1.04; letter-spacing: -.04em; font-weight: 900; }
+.join-modal h2 em { color: #c51c35; font-style: normal; }
+.modal-description { max-width: 330px; margin: 0 auto 24px; color: #697287; font-size: .84rem; line-height: 1.5; }
+.join-modal form { text-align: left; }
+.join-modal label { display: block; margin: 0 0 7px 3px; color: #27344a; font-size: .61rem; font-weight: 900; letter-spacing: .12em; }
+.input-wrap { height: 52px; display: flex; align-items: center; gap: 10px; padding: 0 15px; background: #eef1f5; border: 1px solid #d7dce5; border-radius: 8px; box-shadow: none; transition: border-color .2s, box-shadow .2s, background .2s; }
+.input-wrap:focus-within { background: #fff; border-color: #1b4078; box-shadow: 0 0 0 4px rgba(27,64,120,.12); }
+.input-wrap.input-error { border-color: #c51c35; }
+.input-wrap svg { width: 20px; flex: 0 0 auto; fill: none; stroke: #7c8799; stroke-width: 1.8; stroke-linecap: round; }
+.input-wrap input { width: 100%; border: 0; outline: 0; background: transparent; color: #111c32; font: 700 .9rem/1 var(--font-sans); }
+.input-wrap input::placeholder { color: #a2a9b5; font-weight: 600; }
+.input-wrap:has(input:disabled) { opacity: .68; }
+.error-message { margin: 7px 3px -4px; color: #b6162d; font-size: .68rem; }
+.join-modal button { width: 100%; height: 54px; margin-top: 14px; padding: 0 19px; display: flex; justify-content: center; align-items: center; gap: 14px; border: 2px solid #07142c; border-radius: 11px; background: #c91c35; box-shadow: 0 5px 0 #07142c; color: #fff; font: 900 .76rem/1 var(--font-sans); letter-spacing: .1em; cursor: pointer; transition: transform .15s, box-shadow .15s, background .15s; }
+.join-modal button span { font-size: 1.25rem; line-height: 1; }
+.join-modal button:hover { background: #df2440; transform: translateY(-1px); box-shadow: 0 6px 0 #07142c; }
+.join-modal button:active { transform: translateY(4px); box-shadow: 0 1px 0 #07142c; }
+.join-modal button:focus-visible { outline: 3px solid #f2c94c; outline-offset: 3px; }
+.join-modal button:disabled { background: #9e2940; cursor: wait; opacity: .78; transform: none; box-shadow: 0 5px 0 #07142c; }
+.privacy-note { margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 7px; color: #8b93a2; font-size: .59rem; }
+.privacy-note svg { width: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+@media (max-width: 560px) {
+  .join-modal__content { padding: 23px 24px 25px; }
+  .flag-badge { width: 78px; height: 78px; }
+  .country-flag--large { width: 54px; height: 38px; }
+  .team-tag { right: -38px; }
+  .join-modal h2 { font-size: 1.8rem; }
+  .modal-description { margin-bottom: 19px; }
+  .privacy-note { line-height: 1.35; }
+}
+
+@media (max-height: 720px) {
+  .join-modal__content { padding-top: 18px; padding-bottom: 20px; }
+  .flag-wrap { margin-bottom: 14px; }
+  .flag-badge { width: 72px; height: 72px; }
+  .country-flag--large { width: 50px; height: 35px; }
+  .join-modal h2 { font-size: 1.75rem; }
+  .modal-description { margin-bottom: 14px; }
+  .privacy-note { margin-top: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) { .flag-wrap { animation: none; } }

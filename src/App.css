@@ -1,0 +1,68 @@
+.game-shell {
+  min-height: 100svh;
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #091a3a;
+  color: #fff;
+}
+
+.background-shapes {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shape { position: absolute; display: block; }
+
+.shape--bottom {
+  width: min(920px, 92vw);
+  height: 48vh;
+  left: -8vw;
+  bottom: -23vh;
+  border-radius: 96px 96px 24px 24px;
+  background: #2458a6;
+  transform: rotate(-5deg);
+}
+
+.shape--red {
+  width: clamp(320px, 48vw, 720px);
+  height: clamp(320px, 48vw, 720px);
+  top: clamp(-390px, -25vw, -180px);
+  right: clamp(-300px, -14vw, -100px);
+  border-radius: 42%;
+  background: #cf304b;
+  transform: rotate(22deg);
+}
+
+.shape--cream {
+  width: clamp(150px, 18vw, 280px);
+  height: clamp(150px, 18vw, 280px);
+  top: 18%;
+  left: clamp(-130px, -7vw, -60px);
+  border-radius: 50%;
+  background: #f2d38d;
+  opacity: .18;
+}
+
+.shape--blue {
+  width: clamp(280px, 32vw, 520px);
+  height: clamp(90px, 10vw, 150px);
+  right: 7%;
+  bottom: 5%;
+  border-radius: 999px;
+  background: #4382d5;
+  opacity: .34;
+  transform: rotate(-28deg);
+}
+
+@media (max-width: 640px) {
+  .shape--bottom { width: 125vw; height: 35vh; left: -24vw; bottom: -20vh; border-radius: 58px 58px 0 0; }
+  .shape--red { top: -210px; right: -190px; }
+  .shape--cream { top: 36%; left: -100px; }
+  .shape--blue { right: -140px; bottom: 11%; }
+}

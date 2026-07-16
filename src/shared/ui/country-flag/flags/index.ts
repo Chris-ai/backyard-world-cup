@@ -1,0 +1,16 @@
+export { ArgentinaFlag } from "./ArgentinaFlag";
+export { BelgiumFlag } from "./BelgiumFlag";
+export { BrazilFlag } from "./BrazilFlag";
+export { CanadaFlag } from "./CanadaFlag";
+export { CapeVerdeFlag } from "./CapeVerdeFlag";
+export { CuracaoFlag } from "./CuracaoFlag";
+export { EnglandFlag } from "./EnglandFlag";
+export { FranceFlag } from "./FranceFlag";
+export { GermanyFlag } from "./GermanyFlag";
+export { ItalyFlag } from "./ItalyFlag";
+export { MexicoFlag } from "./MexicoFlag";
+export { NetherlandsFlag } from "./NetherlandsFlag";
+export { PortugalFlag } from "./PortugalFlag";
+export { SpainFlag } from "./SpainFlag";
+export { UsaFlag } from "./UsaFlag";
+export { UruguayFlag } from "./UruguayFlag";

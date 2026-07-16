@@ -1,0 +1,88 @@
+{
+  "questions": [
+    {
+      "question": "Który zawodnik sprawił, że Krzysiek zaczął kibicować FC Barcelonie?",
+      "answers": [
+        "Lionel Messi",
+        "Ronaldinho",
+        "Xavi Hernandez",
+        "Andres Iniesta"
+      ],
+      "correctAnswer": "Ronaldinho",
+      "type": "single-choice"
+    },
+    {
+      "question": "28 lat to dalej młody gość",
+      "correctAnswer": "Prawda",
+      "answers": ["Prawda", "Fałsz"],
+      "type": "single-choice",
+      "easterEgg": "Dzięki, to miłe. Otrzymujesz dodatkowy punkt."
+    },
+    {
+      "question": "Gdyby nie kontuzja czego, Krzysiek byłby jak Robert Lewandowski?",
+      "answers": ["Kolana", "Głowy", "Stopy", "Nadgarstka"],
+      "correctAnswer": "Kolana",
+      "type": "single-choice"
+    },
+    {
+      "question": "W którą grę Krzysiek ma przegranych najwięcej godzin?",
+      "answers": ["League of Legends", "Counter-Strike", "Minecraft", "FIFA"],
+      "correctAnswer": "FIFA",
+      "type": "single-choice"
+    },
+    {
+      "question": "Wybierz top 3 rzeczy, które najbardziej denerwują Krzyśka, kolejność nie ma znaczenia",
+      "answers": [
+        "Przegrana w gierce",
+        "Nieudane zamówienie na randce",
+        "Przegrana Barcelony w meczu ligowym",
+        "Sojusznik w lidze legend, podejmuje próby konwersacji na czacie, podczas swobodnego oddawania się drużynie przeciwnej.",
+        "Nieuporządkowane ubrania w szafie",
+        "Imigrant wiezie jedzonko z ubera już drugą godzinę",
+        "Otwarte szafki"
+      ],
+      "correctAnswer": [
+        "Przegrana w gierce",
+        "Otwarte szafki",
+        "Sojusznik w lidze legend, podejmuje próby konwersacji na czacie, podczas swobodnego oddawania się drużynie przeciwnej."
+      ],
+      "type": "multiple-choice",
+      "maxSelections": 3
+    },
+    {
+      "question": "Który kraj jest wymarzonym kierunkiem podróży Krzyśka?",
+      "answers": ["Japonia", "Argentyna", "Grecja", "Islandia"],
+      "correctAnswer": "Japonia",
+      "type": "single-choice"
+    },
+    {
+      "question": "Prowadzący tej rozgrywki lubi zmiany",
+      "answers": ["prawda", "fałsz"],
+      "correctAnswer": "prawda",
+      "type": "single-choice"
+    },
+    {
+      "question": "W którym z tych miiesjowości Krzysiek NIE obchodził swojego urodzin?",
+      "answers": ["Białystok", "Żubrówka", "Nowy dwór", "Siemianówka"],
+      "correctAnswer": "Siemianówka",
+      "type": "single-choice"
+    },
+    {
+      "question": "Ulubiona kuchnia Krzyśka to:",
+      "answers": ["Meksykańska", "Włoska", "Azjatycka", "Polska"],
+      "correctAnswer": "Włoska",
+      "type": "single-choice"
+    },
+    {
+      "question": "Najbardziej optymalna temperatura to:",
+      "answers": [
+        "24 - 28°C",
+        "15 - 22°C",
+        "Jak jest zimno, ale nie wieje",
+        "Jak jest ciepło, ale  wieje"
+      ],
+      "correctAnswer": "24 - 28°C",
+      "type": "single-choice"
+    }
+  ]
+}

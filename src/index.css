@@ -1,0 +1,52 @@
+:root {
+  --view-navbar-height: 78px;
+  --font-sans: "Bahnschrift", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --font-display: "Bahnschrift SemiCondensed", "Bahnschrift", "Arial Narrow", sans-serif;
+  font-family: var(--font-sans);
+  color: #14213a;
+  background: #071833;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
+
+body { min-height: 100svh; }
+
+button, input { font: inherit; }
+
+h1, h2, h3, strong, button, th { font-family: var(--font-display); }
+
+::selection { color: #fff; background: #c91c35; }
+
+.view-navbar {
+  width: 100%;
+  min-height: var(--view-navbar-height);
+  position: relative;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  border-bottom: 1px solid rgba(255,255,255,.18);
+  background: rgba(5,18,43,.48);
+  box-shadow: 0 8px 28px rgba(1,9,24,.12);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.view-navbar h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+  line-height: 1;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  :root { --view-navbar-height: 58px; }
+  .view-navbar h1 { font-size: 1rem; }
+}
