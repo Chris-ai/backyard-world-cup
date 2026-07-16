@@ -39,6 +39,24 @@ create unique index if not exists bets_player_key
 create index if not exists players_auth_user_id_idx
   on public.players(auth_user_id);
 
+-- Polityki nie odczytują bezpośrednio ukrytego auth_user_id. Funkcja działa
+-- jako właściciel i zwraca wyłącznie UUID gracza bieżącej sesji.
+create or replace function public.current_player_id()
+returns uuid
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select id
+  from public.players
+  where auth_user_id = auth.uid()
+  limit 1;
+$$;
+
+revoke all on function public.current_player_id() from public, anon;
+grant execute on function public.current_player_id() to authenticated;
+
 -- PLAYERS: ranking jest widoczny dla uczestników, ale token i auth_user_id
 -- pozostają niewidoczne dzięki uprawnieniom kolumnowym powyżej.
 drop policy if exists "authenticated can read leaderboard players" on public.players;
@@ -51,8 +69,8 @@ drop policy if exists "player can update own profile" on public.players;
 create policy "player can update own profile"
 on public.players for update
 to authenticated
-using (auth_user_id = (select auth.uid()))
-with check (auth_user_id = (select auth.uid()));
+using (id = (select public.current_player_id()))
+with check (id = (select public.current_player_id()));
 
 -- CHALLENGES: wszyscy widzą stan, tylko admin może go zmieniać.
 drop policy if exists "authenticated can read challenges" on public.challenges;
@@ -81,11 +99,7 @@ on public.results for insert
 to authenticated
 with check (
   (select public.is_current_user_admin())
-  or exists (
-    select 1 from public.players
-    where players.id = results.player_id
-      and players.auth_user_id = (select auth.uid())
-  )
+  or player_id = (select public.current_player_id())
 );
 
 drop policy if exists "player or admin can update results" on public.results;
@@ -94,19 +108,11 @@ on public.results for update
 to authenticated
 using (
   (select public.is_current_user_admin())
-  or exists (
-    select 1 from public.players
-    where players.id = results.player_id
-      and players.auth_user_id = (select auth.uid())
-  )
+  or player_id = (select public.current_player_id())
 )
 with check (
   (select public.is_current_user_admin())
-  or exists (
-    select 1 from public.players
-    where players.id = results.player_id
-      and players.auth_user_id = (select auth.uid())
-  )
+  or player_id = (select public.current_player_id())
 );
 
 -- BETS: gracz widzi i modyfikuje swój bet; admin widzi wszystkie.
@@ -116,11 +122,7 @@ on public.bets for select
 to authenticated
 using (
   (select public.is_current_user_admin())
-  or exists (
-    select 1 from public.players
-    where players.id = bets.player_id
-      and players.auth_user_id = (select auth.uid())
-  )
+  or player_id = (select public.current_player_id())
 );
 
 drop policy if exists "player can insert own bet" on public.bets;
@@ -128,11 +130,7 @@ create policy "player can insert own bet"
 on public.bets for insert
 to authenticated
 with check (
-  exists (
-    select 1 from public.players
-    where players.id = bets.player_id
-      and players.auth_user_id = (select auth.uid())
-  )
+  player_id = (select public.current_player_id())
 );
 
 drop policy if exists "player can update own bet" on public.bets;
@@ -140,18 +138,10 @@ create policy "player can update own bet"
 on public.bets for update
 to authenticated
 using (
-  exists (
-    select 1 from public.players
-    where players.id = bets.player_id
-      and players.auth_user_id = (select auth.uid())
-  )
+  player_id = (select public.current_player_id())
 )
 with check (
-  exists (
-    select 1 from public.players
-    where players.id = bets.player_id
-      and players.auth_user_id = (select auth.uid())
-  )
+  player_id = (select public.current_player_id())
 );
 
 -- Funkcje dostępne tylko po uzyskaniu anonimowej sesji Auth.
