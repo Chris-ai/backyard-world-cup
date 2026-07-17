@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./image.png" alt="Backyard World Cup application preview" width="42" />
+  <img src="./src/assets/image.png" alt="Backyard World Cup application preview" width="42" />
 </p>
 
 <h1 align="center">Backyard World Cup</h1>
