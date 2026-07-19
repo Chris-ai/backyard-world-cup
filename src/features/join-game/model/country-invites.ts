@@ -10,7 +10,7 @@ export const COUNTRY_INVITE_TOKENS: Record<CountryCode, string> = {
   spain: "FaLgv6bf6folsh5oc9Q_UMA_",
   portugal: "p9CNANyFK4wQvdoPrIFwyR7S",
   england: "2x6kCG4WdQtsoExfVwbTElkA",
-  netherlands: "lqY0IAt8e-0QWC3iawOFHeiS",
+  netherlands: "619c47d7c03e235bbcad8b139d13b69c85fb",
   "cape-verde": "3Y3dOZ0WgHVb4IR_sy5hmdrD",
   curacao: "45iJ79Uzmb1f_EAQwQAIhJBT",
   belgium: "z1Z3DEJC1_B6lkwKpgjCgtM9",
